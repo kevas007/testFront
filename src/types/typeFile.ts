@@ -5,7 +5,7 @@ export interface Categorie {
   created_at: string | null
   updated_at: string | null
   // relations
-  depense: Depense[]
+  depenses: Depense[]
 }
 
 export interface Depense {

@@ -10,11 +10,21 @@ export const baseStore = defineStore('baseStore', {
   actions: {
     async getAllCategories() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/v1/depense')
-        this.categories = response.data
+        const response = await axios.get('http://127.0.0.1:8000/api/v1/categorie')
+        this.categories = response.data.data
       } catch (error) {
         console.error(error)
       }
     },
   },
+  async updateCategorie ({
+    name: string
+  }){
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/api/v1/categorie',)
+      this.categories = response.data.data
+    } catch (error) {
+      console.error(error)
+    }
+  }
 })

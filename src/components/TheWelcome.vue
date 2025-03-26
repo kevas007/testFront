@@ -5,12 +5,17 @@
     </div>
     <div class="nav-links">
       <RouterLink to="/">Liste</RouterLink>
-      <RouterLink to="/Statistiques">About</RouterLink>
+      <RouterLink to="/statistiques">About</RouterLink>
     </div>
+  </div>
+  <div>
+    <CategorieAll />
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import CategorieAll from './CategorieAll.vue'
+</script>
 
 <style scoped>
 .header {

@@ -8,12 +8,23 @@ export const baseStore = defineStore('baseStore', {
   }),
 
   actions: {
+    //call api depenses
     async getAllCategories() {
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/v1/categorie')
         this.categories = response.data.data
       } catch (error) {
         console.error(error)
+      }
+    },
+
+    async createCategorie(name: string) {
+      try {
+        await axios.post('http://127.0.0.1:8000/api/v1/categorie', { name })
+        await this.getAllCategories()
+      } catch (error) {
+        console.error('Erreur création catégorie', error)
+        throw error
       }
     },
 
@@ -36,5 +47,6 @@ export const baseStore = defineStore('baseStore', {
         console.error(error)
       }
     },
+    //end
   },
 })

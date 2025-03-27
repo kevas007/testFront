@@ -1,15 +1,15 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
-import { type Categorie,type Depense } from '@/types/typeFile'
+import { type Categorie, type Depense } from '@/types/typeFile'
 
 export const baseStore = defineStore('baseStore', {
   state: () => ({
     categories: [] as Categorie[],
-    depenses: {} as Depense
+    depenses: [] as Depense[]
   }),
 
   actions: {
-    //call api depenses
+    // Récupère toutes les catégories
     async getAllCategories() {
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/v1/categorie')
@@ -39,6 +39,7 @@ export const baseStore = defineStore('baseStore', {
         console.error(error)
       }
     },
+
     async deleteCategorie(id: number) {
       try {
         await axios.delete(`http://127.0.0.1:8000/api/v1/categorie/${id}`)
@@ -48,17 +49,16 @@ export const baseStore = defineStore('baseStore', {
         throw error
       }
     },
-    //end
-    //call api depenses
-    async createDepense(payload: FormData | any) {
+
+    // Crée une dépense (supporte les fichiers)
+    async createDepense(payload: FormData) {
       try {
         const res = await axios.post('http://127.0.0.1:8000/api/v1/depense', payload, {
           headers: {
-         'Content-Type': 'application/json',
+            'Content-Type': 'multipart/form-data',
           },
         })
 
-        // Optionnel : ajouter localement
         this.depenses.push(res.data.data)
         return res.data.data
       } catch (error) {

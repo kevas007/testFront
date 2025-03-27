@@ -9,19 +9,8 @@
       </v-card-title>
 
       <v-card-text>
-        <v-text-field
-          v-model="form.titre"
-          label="Titre de la dépense *"
-          required
-        />
-
-        <v-text-field
-          v-model="form.date"
-          label="Date de la dépense *"
-          type="date"
-          required
-        />
-
+        <v-text-field v-model="form.titre" label="Titre de la dépense *" required />
+        <v-text-field v-model="form.date" label="Date *" type="date" required />
         <v-select
           v-model="form.categorie_id"
           :items="store.categories"
@@ -31,27 +20,24 @@
           return-object
           required
         />
-
         <v-textarea
           v-model="form.description"
           label="Description"
           rows="2"
-          counter
           maxlength="200"
+          counter
         />
-
         <v-text-field
           v-model="form.montant"
-          label="Montant de la dépense *"
+          label="Montant *"
           type="number"
           append-inner-icon="mdi-currency-eur"
           required
         />
-
         <div class="my-4">
           <label class="text-caption font-weight-medium mb-1 d-block">Justificatif</label>
           <v-file-input
-            v-model="form.justificatif"
+            v-model="form.src"
             label="Ajouter un justificatif"
             accept="image/*,.pdf"
             prepend-icon="mdi-paperclip"
@@ -67,12 +53,23 @@
           block
           color="primary"
           @click="submitDepense"
-          :disabled="!isFormValid"
+          :disabled="!isFormValid || loading"
         >
-          Ajouter la dépense
+          <template v-if="loading">
+            <v-progress-circular indeterminate color="white" size="20" class="me-2" />
+            Envoi...
+          </template>
+          <template v-else>
+            Ajouter la dépense
+          </template>
         </v-btn>
       </v-card-actions>
     </v-card>
+
+    <!-- Snackbar -->
+    <v-snackbar v-model="success" color="success" timeout="2500">
+      Dépense ajoutée avec succès !
+    </v-snackbar>
   </v-dialog>
 </template>
 
@@ -83,48 +80,56 @@ import { baseStore } from '@/store/baseStore'
 const props = defineProps<{ modelValue: boolean }>()
 const emit = defineEmits(['update:modelValue', 'saved'])
 
+const store = baseStore()
+
 const visible = ref(props.modelValue)
+const loading = ref(false)
+const success = ref(false)
+
 watch(() => props.modelValue, (v) => visible.value = v)
 watch(visible, (v) => emit('update:modelValue', v))
-
-const store = baseStore()
 
 const form = ref({
   titre: '',
   date: '',
-  categorie_id: null,
+  categorie_id: null as { id: number; name: string } | null,
   description: '',
   montant: 0,
-  justificatif: null,
+  src: null as File | null,
 })
 
 const isFormValid = computed(() =>
   form.value.titre.trim().length > 0 &&
   form.value.date !== '' &&
   form.value.categorie_id !== null &&
-  parseFloat(form.value.montant) > 0
+  parseFloat(form.value.montant.toString()) > 0
 )
 
-function submitDepense() {
-  const payload = {
-    titre: form.value.titre,
-    date: form.value.date,
-    categorie_id: form.value.categorie_id.id, // car return-object est true
-    description: form.value.description,
-    montant: parseFloat(form.value.montant),
-    justificatif: form.value.justificatif,
+async function submitDepense() {
+  try {
+    loading.value = true
+
+    const formData = new FormData()
+    formData.append('titre', form.value.titre)
+    formData.append('date', form.value.date)
+    formData.append('categorie_id', form.value.categorie_id!.id.toString())
+    formData.append('description', form.value.description)
+    formData.append('montant', form.value.montant.toString())
+    if (form.value.src) {
+      formData.append('src', form.value.src)
+    }
+
+    await store.createDepense(formData)
+
+    success.value = true
+    emit('saved')
+    resetForm()
+    close()
+  } catch (e) {
+    console.error('Erreur lors de la soumission', e)
+  } finally {
+    loading.value = false
   }
-
-  // TODO: envoyer à l'API
-  console.log('Soumission de la dépense :', payload)
-
-  emit('saved', payload)
-  resetForm()
-  close()
-}
-
-function close() {
-  visible.value = false
 }
 
 function resetForm() {
@@ -134,7 +139,11 @@ function resetForm() {
     categorie_id: null,
     description: '',
     montant: 0,
-    justificatif: null,
+    src: null,
   }
+}
+
+function close() {
+  visible.value = false
 }
 </script>

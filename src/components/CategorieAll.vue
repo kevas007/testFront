@@ -11,7 +11,7 @@
       <div class="d-flex flex-wrap align-center justify-space-between mb-6">
         <div class="d-flex flex-wrap align-center">
           <v-chip
-            v-for="(cat, index) in store.categories"
+            v-for="cat in store.categories"
             :key="cat.id"
             class="ma-1"
             :closable="selectedCategorie?.id === cat.id"
@@ -26,15 +26,18 @@
           </v-btn>
         </div>
 
-        <v-btn color="primary" prepend-icon="mdi-plus" @click="showManager = true">
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="showDepenseModal = true">
           Ajouter
         </v-btn>
       </div>
+
+      <!-- Modale d'ajout -->
       <AddDepenseModal v-model="showDepenseModal" @saved="handleNewDepense" />
-      <!-- Dépenses de la catégorie sélectionnée -->
+
+      <!-- Dépenses -->
       <v-card v-if="activeCategorie" class="pa-4 mt-4" max-width="700" elevation="2">
         <v-card-title>
-         {{ activeCategorie.name }}
+          {{ activeCategorie.name }}
           <v-spacer />
         </v-card-title>
 
@@ -55,25 +58,28 @@
 import { ref, computed, onMounted } from 'vue'
 import { baseStore } from '../store/baseStore'
 import CategorieShow from './CategorieShow.vue'
+import AddDepenseModal from './AddDepenseModal.vue'
 import Depense from './Depense.vue'
+import type { Categorie, Depense as DepenseType } from '@/types/typeFile'
 
 const store = baseStore()
-const loading = ref(true)
 
-const selectedCategorie = ref<{ id: number; name: string } | null>(null)
+const loading = ref(true)
 const showManager = ref(false)
+const showDepenseModal = ref(false)
+
+const selectedCategorie = ref<Categorie | null>(null)
 
 const activeCategorie = computed(() =>
   store.categories.find((c) => c.id === selectedCategorie.value?.id)
 )
 
-onMounted(() => {
-  store.getAllCategories().then(() => {
-    if (store.categories.length && !selectedCategorie.value) {
-      selectedCategorie.value = store.categories[0]
-    }
-    loading.value = false
-  })
+onMounted(async () => {
+  await store.getAllCategories()
+  if (store.categories.length && !selectedCategorie.value) {
+    selectedCategorie.value = store.categories[0]
+  }
+  loading.value = false
 })
 
 function resetToFirstCategorie() {
@@ -82,24 +88,17 @@ function resetToFirstCategorie() {
   }
 }
 
-function formatCurrency(montant: number) {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(montant)
-}
-
-function selectCategorie(cat: { id: number; name: string }) {
+function selectCategorie(cat: Categorie) {
   selectedCategorie.value = cat
 }
 
-function removeFilter(cat: { id: number }) {
+function removeFilter(cat: Categorie) {
   if (selectedCategorie.value?.id === cat.id) {
     selectedCategorie.value = null
   }
 }
 
-function getCategorieColor(categorie: { id: number }) {
+function getCategorieColor(categorie: Categorie): string {
   switch (categorie.id) {
     case 1:
       return 'warning'
@@ -111,6 +110,13 @@ function getCategorieColor(categorie: { id: number }) {
       return 'blue'
     default:
       return 'grey'
+  }
+}
+
+// Optionnel si tu veux faire quelque chose après ajout
+function handleNewDepense() {
+  if (selectedCategorie.value) {
+    store.getAllCategories()
   }
 }
 </script>

@@ -9,7 +9,11 @@
       </div>
 
       <!-- Liste des catégories -->
-      <div v-for="cat in store.categories" :key="cat.id" class="d-flex justify-space-between align-center mb-2">
+      <div
+        v-for="cat in store.categories"
+        :key="cat.id"
+        class="d-flex justify-space-between align-center mb-2"
+      >
         <span>{{ cat.name }}</span>
         <v-btn icon size="x-small" @click="deleteCategorie(cat.id)">
           <v-icon size="16">mdi-delete</v-icon>
@@ -43,7 +47,10 @@ const props = defineProps<{ modelValue: boolean }>()
 const emit = defineEmits(['update:modelValue'])
 
 const show = ref(props.modelValue)
-watch(() => props.modelValue, (v) => (show.value = v))
+watch(
+  () => props.modelValue,
+  (v) => (show.value = v),
+)
 watch(show, (v) => emit('update:modelValue', v))
 
 const newCategorie = ref('')

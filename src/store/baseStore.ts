@@ -46,8 +46,7 @@ export const baseStore = defineStore('baseStore', {
         console.error('Erreur suppression catégorie', error)
         throw error
       }
-    }
-
+    },
     //end
   },
 })

@@ -2,27 +2,27 @@
   <div class="pa-6">
     <!-- Filtres : catégories -->
     <div class="d-flex flex-wrap align-center justify-space-between mb-6">
-      <div class="d-flex">
+      <!-- Chips -->
+      <div class="d-flex flex-wrap align-center">
         <v-chip
           v-for="(cat, index) in store.categories"
           :key="cat.id"
-          class="ma-1 d-flex align-center"
-          closable
-          @click:close="removeFilter(cat)"
+          class="ma-1"
+          :closable="selectedCategorie?.id === cat.id"
           @click="selectCategorie(cat)"
+          @click:close="resetToFirstCategorie"
           :color="selectedCategorie?.id === cat.id ? 'primary' : 'grey-lighten-2'"
-          variant="flat"
-
         >
           {{ cat.name }}
-
         </v-chip>
-        <v-btn icon size="x-small" class="ms-2" @click.stop="openEditModal(cat)">
-            <v-icon size="16">mdi-pencil</v-icon>
-          </v-btn>
+        <!-- Icône crayon global -->
+        <v-btn icon class="ma-1" @click="showManager = true">
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
       </div>
 
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openEditModal()">Ajouter</v-btn>
+      <!-- Bouton Ajouter -->
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="showManager = true">Ajouter</v-btn>
     </div>
 
     <!-- Dépenses de la catégorie sélectionnée -->
@@ -59,29 +59,8 @@
       </v-card-text>
     </v-card>
 
-    <!-- Modale création / modification catégorie -->
-    <v-dialog v-model="editModal" max-width="500">
-      <v-card>
-        <v-card-title>
-          {{ editedCategorie.id ? 'Modifier' : 'Ajouter' }} une catégorie
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="editedCategorie.name"
-            label="Nom de la catégorie"
-            autofocus
-            required
-          />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" @click="submitCategorie">
-            {{ editedCategorie.id ? 'Enregistrer' : 'Créer' }}
-          </v-btn>
-          <v-btn @click="editModal = false">Annuler</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <!-- Modale de gestion globale des catégories -->
+    <CategorieShow v-model="showManager" />
   </div>
 </template>
 
@@ -89,26 +68,30 @@
 import { ref, computed, onMounted } from 'vue'
 import { baseStore } from '../store/baseStore'
 import CategorieShow from './CategorieShow.vue'
-const showManager = ref(false)
 
 const store = baseStore()
 
 const selectedCategorie = ref<{ id: number; name: string } | null>(null)
-const editModal = ref(false)
-
-const editedCategorie = ref<{ id: number | null; name: string }>({
-  id: null,
-  name: '',
-})
+const showManager = ref(false)
 
 const activeCategorie = computed(() =>
-  store.categories.find((c) => c.id === selectedCategorie.value?.id)
+  store.categories.find((c) => c.id === selectedCategorie.value?.id),
 )
 
 onMounted(() => {
-  store.getAllCategories()
+  store.getAllCategories().then(() => {
+    // Sélectionne la première catégorie automatiquement
+    if (store.categories.length && !selectedCategorie.value) {
+      selectedCategorie.value = store.categories[0]
+    }
+  })
 })
 
+function resetToFirstCategorie() {
+  if (store.categories.length) {
+    selectedCategorie.value = store.categories[0]
+  }
+}
 function formatCurrency(montant: number) {
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
@@ -125,31 +108,4 @@ function removeFilter(cat: { id: number }) {
     selectedCategorie.value = null
   }
 }
-
-function openEditModal(categorie: { id?: number; name: string } | null = null) {
-  if (categorie) {
-    editedCategorie.value = {
-      id: categorie.id ?? null,
-      name: categorie.name,
-    }
-  } else {
-    editedCategorie.value = { id: null, name: '' }
-  }
-  editModal.value = true
-}
-
-async function submitCategorie() {
-  try {
-    if (editedCategorie.value.id) {
-      await store.updateCategorie(editedCategorie.value.id, editedCategorie.value.name)
-    } else {
-      await store.createCategorie(editedCategorie.value.name)
-    }
-    editModal.value = false
-  } catch (error) {
-    console.error('Erreur lors de la soumission', error)
-  }
-}
-
-
 </script>

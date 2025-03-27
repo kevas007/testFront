@@ -1,0 +1,10 @@
+services:
+  vue3-dev:
+    build: .
+    container_name: vue3-dev
+    ports:
+      - "5173:5173" # Vite
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped

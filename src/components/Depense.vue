@@ -1,6 +1,8 @@
 <template>
   <div>
-    <p><strong>{{ depense.titre }}</strong></p>
+    <p>
+      <strong>{{ depense.titre }}</strong>
+    </p>
     <p>{{ depense.montant }} €</p>
     <p>{{ depense.date }}</p>
   </div>

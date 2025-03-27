@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
-import { type Categorie } from '@/types/typeFile'
+import { type Categorie,type Depense } from '@/types/typeFile'
 
 export const baseStore = defineStore('baseStore', {
   state: () => ({
     categories: [] as Categorie[],
+    depenses: {} as Depense
   }),
 
   actions: {
@@ -48,5 +49,22 @@ export const baseStore = defineStore('baseStore', {
       }
     },
     //end
+    //call api depenses
+    async createDepense(payload: FormData | any) {
+      try {
+        const res = await axios.post('http://127.0.0.1:8000/api/v1/depense', payload, {
+          headers: {
+         'Content-Type': 'application/json',
+          },
+        })
+
+        // Optionnel : ajouter localement
+        this.depenses.push(res.data.data)
+        return res.data.data
+      } catch (error) {
+        console.error('Erreur ajout dépense:', error)
+        throw error
+      }
+    },
   },
 })

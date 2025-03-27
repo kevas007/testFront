@@ -8,8 +8,14 @@
         </v-btn>
       </div>
 
+      <!-- Loader global -->
+      <div v-if="loading" class="d-flex justify-center py-4">
+        <v-progress-circular indeterminate color="primary" />
+      </div>
+
       <!-- Liste des catégories -->
       <div
+        v-else
         v-for="cat in store.categories"
         :key="cat.id"
         class="d-flex justify-space-between align-center mb-2"
@@ -29,8 +35,9 @@
           hide-details
           variant="outlined"
           class="flex-grow-1"
+          :disabled="loading"
         />
-        <v-btn icon @click="createCategorie" :disabled="!newCategorie">
+        <v-btn icon @click="createCategorie" :disabled="!newCategorie || loading">
           <v-icon>mdi-plus</v-icon>
         </v-btn>
       </div>
@@ -54,15 +61,26 @@ watch(
 watch(show, (v) => emit('update:modelValue', v))
 
 const newCategorie = ref('')
+const loading = ref(false)
 
 async function createCategorie() {
   if (!newCategorie.value) return
-  await store.createCategorie(newCategorie.value)
-  newCategorie.value = ''
+  loading.value = true
+  try {
+    await store.createCategorie(newCategorie.value)
+    newCategorie.value = ''
+  } finally {
+    loading.value = false
+  }
 }
 
 async function deleteCategorie(id: number) {
-  await store.deleteCategorie(id)
+  loading.value = true
+  try {
+    await store.deleteCategorie(id)
+  } finally {
+    loading.value = false
+  }
 }
 
 function close() {

@@ -38,15 +38,16 @@ export const baseStore = defineStore('baseStore', {
         console.error(error)
       }
     },
-
-    async deleteDepense(depenseId: number) {
+    async deleteCategorie(id: number) {
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/v1/depense/${depenseId}`)
+        await axios.delete(`http://127.0.0.1:8000/api/v1/categorie/${id}`)
         await this.getAllCategories()
       } catch (error) {
-        console.error(error)
+        console.error('Erreur suppression catégorie', error)
+        throw error
       }
-    },
+    }
+
     //end
   },
 })

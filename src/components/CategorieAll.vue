@@ -88,7 +88,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { baseStore } from '../store/baseStore'
-import axios from 'axios'
+import CategorieShow from './CategorieShow.vue'
+const showManager = ref(false)
 
 const store = baseStore()
 
@@ -140,22 +141,15 @@ function openEditModal(categorie: { id?: number; name: string } | null = null) {
 async function submitCategorie() {
   try {
     if (editedCategorie.value.id) {
-      // Mise à jour
-      await axios.put(
-        `http://127.0.0.1:8000/api/v1/categorie/${editedCategorie.value.id}`,
-        { name: editedCategorie.value.name }
-      )
+      await store.updateCategorie(editedCategorie.value.id, editedCategorie.value.name)
     } else {
-      // Création
-      await axios.post(`http://127.0.0.1:8000/api/v1/categorie`, {
-        name: editedCategorie.value.name,
-      })
+      await store.createCategorie(editedCategorie.value.name)
     }
-
-    await store.getAllCategories()
     editModal.value = false
   } catch (error) {
-    console.error('Erreur lors de l’enregistrement :', error)
+    console.error('Erreur lors de la soumission', error)
   }
 }
+
+
 </script>

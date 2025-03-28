@@ -1,23 +1,34 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { type Categorie, type Depense } from '@/types/typeFile'
-import { srCyrl } from 'vuetify/locale';
+import { srCyrl } from 'vuetify/locale'
 
 export const baseStore = defineStore('baseStore', {
   state: () => ({
     categories: [] as Categorie[],
     depenses: [] as Depense[],
-    form :{
+    form: {
       titre: '',
       date: '',
       categorie_id: null as { id: number; name: string } | null,
       description: '',
       montant: 0,
       src: null as File | null,
-    }
+    },
+    states: {},
   }),
 
   actions: {
+    //stats
+    async getSate() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/v1/state')
+        this.states = response.data.data
+      } catch (error) {
+        console.error(error)
+      }
+    },
+
     // Récupère toutes les catégories
     async getAllCategories() {
       try {
@@ -75,7 +86,7 @@ export const baseStore = defineStore('baseStore', {
         throw error
       }
     },
-   
+
     async updateDepense(id: number) {
       try {
         const formData = new FormData()
@@ -101,7 +112,7 @@ export const baseStore = defineStore('baseStore', {
         }
         // Si vous voulez supprimer un fichier existant, envoyez une indication spéciale
         else if (this.form.src === '') {
-          formData.append('delete_src', '1')  // Signal pour supprimer le fichier
+          formData.append('delete_src', '1') // Signal pour supprimer le fichier
         }
         // Ne rien envoyer si vous souhaitez conserver le fichier existant
 

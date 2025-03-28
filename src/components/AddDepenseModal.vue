@@ -49,19 +49,12 @@
       </v-card-text>
 
       <v-card-actions class="pt-0">
-        <v-btn
-          block
-          color="primary"
-          @click="submitDepense"
-          :disabled="!isFormValid || loading"
-        >
+        <v-btn block color="primary" @click="submitDepense" :disabled="!isFormValid || loading">
           <template v-if="loading">
             <v-progress-circular indeterminate color="white" size="20" class="me-2" />
             Envoi...
           </template>
-          <template v-else>
-            Ajouter la dépense
-          </template>
+          <template v-else> Ajouter la dépense </template>
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -86,7 +79,10 @@ const visible = ref(props.modelValue)
 const loading = ref(false)
 const success = ref(false)
 
-watch(() => props.modelValue, (v) => visible.value = v)
+watch(
+  () => props.modelValue,
+  (v) => (visible.value = v),
+)
 watch(visible, (v) => emit('update:modelValue', v))
 
 const form = ref({
@@ -98,11 +94,12 @@ const form = ref({
   src: null as File | null,
 })
 
-const isFormValid = computed(() =>
-  form.value.titre.trim().length > 0 &&
-  form.value.date !== '' &&
-  form.value.categorie_id !== null &&
-  parseFloat(form.value.montant.toString()) > 0
+const isFormValid = computed(
+  () =>
+    form.value.titre.trim().length > 0 &&
+    form.value.date !== '' &&
+    form.value.categorie_id !== null &&
+    parseFloat(form.value.montant.toString()) > 0,
 )
 
 async function submitDepense() {

@@ -72,7 +72,13 @@
             </template>
 
             <!-- Bouton pour supprimer le fichier -->
-            <v-btn icon size="small" @click="handleRemoveSrc" title="Supprimer le fichier" variant="plain">
+            <v-btn
+              icon
+              size="small"
+              @click="handleRemoveSrc"
+              title="Supprimer le fichier"
+              variant="plain"
+            >
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </div>
@@ -92,19 +98,12 @@
 
       <!-- Actions -->
       <v-card-actions class="pt-0">
-        <v-btn
-          block
-          color="primary"
-          @click="submitDepense"
-          :disabled="loading"
-        >
+        <v-btn block color="primary" @click="submitDepense" :disabled="loading">
           <template v-if="loading">
             <v-progress-circular indeterminate color="white" size="20" class="me-2" />
             Envoi...
           </template>
-          <template v-else>
-            Enregistrer
-          </template>
+          <template v-else> Enregistrer </template>
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -138,7 +137,10 @@ const removeSrc = ref(false)
 
 const errors = ref<Record<string, string>>({})
 
-watch(() => props.modelValue, (v) => visible.value = v)
+watch(
+  () => props.modelValue,
+  (v) => (visible.value = v),
+)
 watch(visible, (v) => emit('update:modelValue', v))
 
 watch(
@@ -157,7 +159,7 @@ watch(
       errors.value = {}
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 function getError(field: string) {

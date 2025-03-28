@@ -1,13 +1,13 @@
 <template>
   <div class="pa-6">
-    <!-- Loader pendant chargement -->
+    <!-- Loader -->
     <div v-if="loading" class="d-flex justify-center align-center" style="height: 200px">
       <v-progress-circular indeterminate color="primary" size="48" />
     </div>
 
-    <!-- Contenu principal -->
+    <!-- Contenu -->
     <div v-else>
-      <!-- Filtres : catégories -->
+      <!-- Filtres -->
       <div class="d-flex flex-wrap align-center justify-space-between mb-6">
         <div class="d-flex flex-wrap align-center">
           <v-chip
@@ -21,6 +21,7 @@
           >
             {{ cat.name }}
           </v-chip>
+
           <v-btn icon class="ma-1" @click="showManager = true">
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
@@ -31,10 +32,10 @@
         </v-btn>
       </div>
 
-      <!-- Modale d'ajout -->
+      <!-- Modal ajout dépense -->
       <AddDepenseModal v-model="showDepenseModal" @saved="handleNewDepense" />
 
-      <!-- Dépenses -->
+      <!-- Liste des dépenses -->
       <v-card v-if="activeCategorie" class="pa-4 mt-4" max-width="700" elevation="2">
         <v-card-title>
           {{ activeCategorie.name }}
@@ -43,13 +44,42 @@
 
         <v-card-text>
           <div v-for="depense in activeCategorie.depense" :key="depense.id">
-            <Depense :depense="depense" :color="getCategorieColor(activeCategorie)" />
+            <Depense
+              :depense="depense"
+              :color="getCategorieColor(activeCategorie)"
+              @delete="confirmDelete"
+            />
           </div>
         </v-card-text>
       </v-card>
     </div>
 
-    <!-- Modale de gestion globale des catégories -->
+    <!-- Dialog de confirmation -->
+    <v-dialog v-model="confirmDialog.visible" max-width="400" persistent>
+      <v-card class="rounded-xl pa-4 text-center">
+        <div class="d-flex justify-space-between align-center mb-2">
+          <span class="text-h6 font-weight-bold">Supprimer la dépense</span>
+          <v-btn icon @click="confirmDialog.visible = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <p class="mt-2 mb-4 text-body-2">Vous allez supprimer cette dépense, êtes-vous sûr ?</p>
+
+        <v-btn
+          block
+          color="primary"
+          class="mb-2"
+          @click="deleteDepense"
+          :loading="confirmDialog.loading"
+        >
+          Supprimer
+        </v-btn>
+
+        <v-btn block variant="outlined" @click="confirmDialog.visible = false">Annuler</v-btn>
+      </v-card>
+    </v-dialog>
+
+    <!-- Modale de gestion globale -->
     <CategorieShow v-model="showManager" />
   </div>
 </template>
@@ -60,18 +90,17 @@ import { baseStore } from '../store/baseStore'
 import CategorieShow from './CategorieShow.vue'
 import AddDepenseModal from './AddDepenseModal.vue'
 import Depense from './Depense.vue'
-import type { Categorie, Depense as DepenseType } from '@/types/typeFile'
+import type { Categorie } from '@/types/typeFile'
 
 const store = baseStore()
 
 const loading = ref(true)
 const showManager = ref(false)
 const showDepenseModal = ref(false)
-
 const selectedCategorie = ref<Categorie | null>(null)
 
 const activeCategorie = computed(() =>
-  store.categories.find((c) => c.id === selectedCategorie.value?.id)
+  store.categories.find((c) => c.id === selectedCategorie.value?.id),
 )
 
 onMounted(async () => {
@@ -92,12 +121,6 @@ function selectCategorie(cat: Categorie) {
   selectedCategorie.value = cat
 }
 
-function removeFilter(cat: Categorie) {
-  if (selectedCategorie.value?.id === cat.id) {
-    selectedCategorie.value = null
-  }
-}
-
 function getCategorieColor(categorie: Categorie): string {
   switch (categorie.id) {
     case 1:
@@ -113,10 +136,34 @@ function getCategorieColor(categorie: Categorie): string {
   }
 }
 
-// Optionnel si tu veux faire quelque chose après ajout
 function handleNewDepense() {
-  if (selectedCategorie.value) {
-    store.getAllCategories()
+  store.getAllCategories()
+}
+
+// 🔒 Confirmation de suppression
+const confirmDialog = ref({
+  visible: false,
+  loading: false,
+  depense: null as { id: number } | null,
+})
+
+function confirmDelete(depense: { id: number }) {
+  confirmDialog.value.visible = true
+  confirmDialog.value.depense = depense
+}
+
+async function deleteDepense() {
+  if (!confirmDialog.value.depense) return
+  try {
+    confirmDialog.value.loading = true
+    await store.deleteDepense(confirmDialog.value.depense.id)
+    await store.getAllCategories()
+    confirmDialog.value.visible = false
+  } catch (e) {
+    console.error('Erreur suppression dépense :', e)
+  } finally {
+    confirmDialog.value.loading = false
+    confirmDialog.value.depense = null
   }
 }
 </script>

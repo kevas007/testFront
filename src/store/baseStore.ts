@@ -40,7 +40,7 @@ export const baseStore = defineStore('baseStore', {
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/v1/state')
         this.states = response.data.data
-      } catch (error: any) {
+      } catch (error: string) {
         console.error(error)
         this.showToast(error?.response?.data?.message || 'Erreur lors de la récupération des stats', 'error')
       } finally {

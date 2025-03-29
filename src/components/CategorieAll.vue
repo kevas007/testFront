@@ -36,7 +36,7 @@
       <AddDepenseModal v-model="showDepenseModal" @saved="handleNewDepense" />
 
       <!-- Liste des dépenses -->
-      <v-card v-if="activeCategorie" class="pa-4 mt-4" max-width="700" elevation="2">
+      <v-card v-if="activeCategorie" class="pa-4 mt-4" max-width="100%" elevation="2">
         <v-card-title>
           {{ activeCategorie.name }}
           <v-spacer />

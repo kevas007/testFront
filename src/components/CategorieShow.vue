@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="show" max-width="400" persistent>
+  <v-dialog v-model="show">
     <v-card class="pa-4 rounded-xl">
       <div class="d-flex justify-space-between align-center mb-4">
         <strong class="text-h6">Gérer les catégories</strong>
@@ -87,3 +87,12 @@ function close() {
   show.value = false
 }
 </script>
+<style scoped>
+@media screen and (max-width: 600px) {
+  .categorie-dialog .v-card {
+    max-width: 95vw;
+    margin: 0 auto;
+  }
+}
+
+</style>

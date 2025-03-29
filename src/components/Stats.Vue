@@ -114,5 +114,42 @@ function format(val: number): string {
     gap: 16px;
   }
 }
+@media screen and (max-width: 600px) {
+  /* Réduire largeur du dialogue */
+  .v-dialog > .v-card {
+    max-width: 95vw !important;
+    padding: 16px !important;
+  }
+
+  /* Adapter le titre */
+  .v-card-title {
+    font-size: 16px;
+    padding: 0 !important;
+  }
+
+  /* Espacer les champs */
+  .v-card-text > * {
+    margin-bottom: 12px !important;
+  }
+
+  .v-text-field,
+  .v-textarea,
+  .v-select,
+  .v-file-input {
+    font-size: 14px;
+  }
+
+  /* Bouton principal */
+  .v-btn {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  /* Circular loader dans le bouton */
+  .v-progress-circular {
+    width: 18px !important;
+    height: 18px !important;
+  }
+}
 
 </style>

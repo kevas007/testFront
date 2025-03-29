@@ -23,13 +23,14 @@
       </div>
 
       <!-- Actions -->
-      <div class="d-flex gap-1">
+      <div class="d-flex gap-2">
         <v-btn
           icon
           density="comfortable"
           @click="handleEditDepense"
           aria-label="Modifier la dépense"
           title="Modifier"
+          class="mx-2"
         >
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
@@ -81,3 +82,46 @@ function handleDepenseUpdated() {
   showEditModal.value = false
 }
 </script>
+<style scoped>
+@media screen and (max-width: 600px) {
+  .v-card {
+    padding: 12px;
+  }
+
+  .v-card .text-subtitle-1 {
+    font-size: 15px;
+  }
+
+  .v-card .text-h6 {
+    font-size: 18px;
+  }
+
+  .v-card .text-caption {
+    font-size: 12px;
+  }
+
+  .v-card .v-chip {
+    font-size: 11px;
+    padding: 0 6px;
+  }
+
+  .v-card .v-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .v-card .v-icon {
+    font-size: 18px;
+  }
+
+  .v-card .d-flex.justify-space-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .v-card .d-flex.gap-1 {
+    align-self: flex-end;
+  }
+}
+</style>

@@ -1,10 +1,15 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { type Categorie, type Depense } from '@/types/typeFile'
-import { srCyrl } from 'vuetify/locale'
 
 export const baseStore = defineStore('baseStore', {
   state: () => ({
+    isLoading: false,
+    toast: {
+      message: '',
+      type: '' as 'success' | 'error' | '', // pour styliser selon le type
+      show: false,
+    },
     categories: [] as Categorie[],
     depenses: [] as Depense[],
     form: {
@@ -19,102 +24,128 @@ export const baseStore = defineStore('baseStore', {
   }),
 
   actions: {
-    //stats
+    showToast(message: string, type: 'success' | 'error' = 'success') {
+      this.toast.message = message
+      this.toast.type = type
+      this.toast.show = true
+      setTimeout(() => {
+        this.toast.show = false
+        this.toast.message = ''
+        this.toast.type = ''
+      }, 5000)
+    },
+
     async getSate() {
+      this.isLoading = true
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/v1/state')
         this.states = response.data.data
-      } catch (error) {
+      } catch (error: any) {
         console.error(error)
+        this.showToast(error?.response?.data?.message || 'Erreur lors de la récupération des stats', 'error')
+      } finally {
+        this.isLoading = false
       }
     },
 
-    // Récupère toutes les catégories
     async getAllCategories() {
+      this.isLoading = true
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/v1/categorie')
         this.categories = response.data.data
-      } catch (error) {
+      } catch (error: any) {
         console.error(error)
+        this.showToast(error?.response?.data?.message || 'Erreur récupération catégories', 'error')
+      } finally {
+        this.isLoading = false
       }
     },
 
     async createCategorie(name: string) {
+      this.isLoading = true
       try {
         await axios.post('http://127.0.0.1:8000/api/v1/categorie', { name })
         await this.getAllCategories()
-      } catch (error) {
+        this.showToast('Catégorie créée avec succès !', 'success')
+      } catch (error: any) {
         console.error('Erreur création catégorie', error)
+        this.showToast(error?.response?.data?.message || 'Erreur création catégorie', 'error')
         throw error
+      } finally {
+        this.isLoading = false
       }
     },
 
     async updateCategorie(updated: { id: number; name: string }) {
+      this.isLoading = true
       try {
         await axios.put(`http://127.0.0.1:8000/api/v1/categorie/${updated.id}`, {
           name: updated.name,
         })
         await this.getAllCategories()
-      } catch (error) {
+        this.showToast('Catégorie mise à jour avec succès', 'success')
+      } catch (error: any) {
         console.error(error)
+        this.showToast(error?.response?.data?.message || 'Erreur mise à jour catégorie', 'error')
+      } finally {
+        this.isLoading = false
       }
     },
 
     async deleteCategorie(id: number) {
+      this.isLoading = true
       try {
         await axios.delete(`http://127.0.0.1:8000/api/v1/categorie/${id}`)
         await this.getAllCategories()
-      } catch (error) {
+        this.showToast('Catégorie supprimée', 'success')
+      } catch (error: any) {
         console.error('Erreur suppression catégorie', error)
+        this.showToast(error?.response?.data?.message || 'Erreur suppression catégorie', 'error')
         throw error
+      } finally {
+        this.isLoading = false
       }
     },
 
-    // Crée une dépense (supporte les fichiers)
     async createDepense(payload: FormData) {
+      this.isLoading = true
       try {
         const res = await axios.post('http://127.0.0.1:8000/api/v1/depense', payload, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         })
-
         this.depenses.push(res.data.data)
+        this.showToast('Dépense ajoutée', 'success')
         return res.data.data
-      } catch (error) {
+      } catch (error: any) {
         console.error('Erreur ajout dépense:', error)
+        this.showToast(error?.response?.data?.message || 'Erreur ajout dépense', 'error')
         throw error
+      } finally {
+        this.isLoading = false
       }
     },
 
     async updateDepense(id: number) {
+      this.isLoading = true
       try {
         const formData = new FormData()
-
-        // Ajouter la méthode PUT pour Laravel
         formData.append('_method', 'PUT')
-
-        // Ajouter tous les champs obligatoires
         formData.append('titre', this.form.titre)
         formData.append('date', this.form.date)
         formData.append('categorie_id', this.form.categorie_id?.id.toString())
         formData.append('montant', this.form.montant.toString())
 
-        // Champs optionnels
         if (this.form.description) {
           formData.append('description', this.form.description)
         }
 
-        // NE PAS ajouter src s'il n'est pas un fichier ou s'il est vide
-        // UNIQUEMENT ajouter src s'il s'agit d'un objet File valide
         if (this.form.src instanceof File) {
           formData.append('src', this.form.src)
+        } else if (this.form.src === '') {
+          formData.append('delete_src', '1')
         }
-        // Si vous voulez supprimer un fichier existant, envoyez une indication spéciale
-        else if (this.form.src === '') {
-          formData.append('delete_src', '1') // Signal pour supprimer le fichier
-        }
-        // Ne rien envoyer si vous souhaitez conserver le fichier existant
 
         const res = await axios.post(`http://127.0.0.1:8000/api/v1/depense/${id}`, formData, {
           headers: {
@@ -123,25 +154,29 @@ export const baseStore = defineStore('baseStore', {
         })
 
         await this.getAllCategories()
+        this.showToast('Dépense mise à jour', 'success')
         return res.data
-      } catch (error) {
+      } catch (error: any) {
         console.error('Erreur updateDepense :', error)
-        if (error.response && error.response.data) {
-          console.error('Détails:', error.response.data)
-        }
+        this.showToast(error?.response?.data?.message || 'Erreur mise à jour dépense', 'error')
         throw error
+      } finally {
+        this.isLoading = false
       }
     },
 
-    // Supprime une dépense
     async deleteDepense(id: number) {
+      this.isLoading = true
       try {
         await axios.delete(`http://127.0.0.1:8000/api/v1/depense/${id}`)
-        // Optionnel : recharge les catégories si tu veux mettre à jour l'affichage
         await this.getAllCategories()
-      } catch (error) {
+        this.showToast('Dépense supprimée', 'success')
+      } catch (error: any) {
         console.error('Erreur suppression dépense:', error)
+        this.showToast(error?.response?.data?.message || 'Erreur suppression dépense', 'error')
         throw error
+      } finally {
+        this.isLoading = false
       }
     },
   },

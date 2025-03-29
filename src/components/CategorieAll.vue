@@ -80,7 +80,8 @@
     </v-dialog>
 
     <!-- Modale de gestion globale -->
-    <CategorieShow v-model="showManager" />
+    <CategorieShow v-model="showManager" style="max-width: 30%;" />
+
   </div>
 </template>
 

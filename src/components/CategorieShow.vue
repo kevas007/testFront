@@ -88,6 +88,10 @@ function close() {
 }
 </script>
 <style scoped>
+  .categorie-dialog .v-card {
+    max-width: 150px;
+    margin: 0 auto;
+  }
 @media screen and (max-width: 600px) {
   .categorie-dialog .v-card {
     max-width: 95vw;

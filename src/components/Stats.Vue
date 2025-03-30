@@ -24,7 +24,7 @@
     <h2 class="text-h6 font-weight-bold mb-6">Totaux par catégorie</h2>
 
     <div class="cat">
-      <div  v-if="store.states && store.states.length" class="d-flex flex-column align-center list">
+      <div v-if="store.states && store.states.length" class="d-flex flex-column align-center list">
         <v-card
           v-for="cat in store.states"
           :key="cat.id"
@@ -63,17 +63,14 @@ function format(val: number): string {
 </script>
 
 <style scoped>
-
-
 .cat {
   display: flex;
   justify-content: center;
-  align-items: center;     
+  align-items: center;
   flex-direction: column;
   gap: 24px;
   margin-top: 16px;
 }
-
 
 .v-card {
   width: 487px;
@@ -84,7 +81,6 @@ function format(val: number): string {
   padding: 24px;
   margin-bottom: 5%;
 }
-
 
 .v-card .text-body-1 {
   font-size: 16px;
@@ -151,5 +147,4 @@ function format(val: number): string {
     height: 18px !important;
   }
 }
-
 </style>

@@ -42,7 +42,10 @@ export const baseStore = defineStore('baseStore', {
         this.states = response.data.data
       } catch (error: string) {
         console.error(error)
-        this.showToast(error?.response?.data?.message || 'Erreur lors de la récupération des stats', 'error')
+        this.showToast(
+          error?.response?.data?.message || 'Erreur lors de la récupération des stats',
+          'error',
+        )
       } finally {
         this.isLoading = false
       }

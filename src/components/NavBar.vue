@@ -9,7 +9,11 @@
       <RouterLink to="/" class="header-btn" :class="{ active: $route.path === '/' }">
         <v-icon size="20" class="mr-1">mdi-view-list</v-icon> Liste
       </RouterLink>
-      <RouterLink to="/statistiques" class="header-btn" :class="{ active: $route.path === '/statistiques' }">
+      <RouterLink
+        to="/statistiques"
+        class="header-btn"
+        :class="{ active: $route.path === '/statistiques' }"
+      >
         <v-icon size="20" class="mr-1">mdi-chart-bar</v-icon> Statistiques
       </RouterLink>
     </div>
@@ -186,5 +190,4 @@ const $route = useRoute()
     font-size: 16px;
   }
 }
-
 </style>

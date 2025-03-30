@@ -37,18 +37,19 @@
 
       <!-- Liste des dépenses -->
       <v-card v-if="activeCategorie" class="pa-4 mt-4" max-width="100%" elevation="2">
-        <v-card-title>
-          {{ activeCategorie.name }}
-          <v-spacer />
-        </v-card-title>
-
         <v-card-text>
-          <div v-for="depense in activeCategorie.depense" :key="depense.id">
-            <Depense
-              :depense="depense"
-              :color="getCategorieColor(activeCategorie)"
-              @delete="confirmDelete"
-            />
+          <div v-if="activeCategorie.depense && activeCategorie.depense.length">
+            <div v-for="depense in activeCategorie.depense" :key="depense.id">
+              <Depense
+                :depense="depense"
+                :categorie-name="activeCategorie.name"
+                :color="getCategorieColor(activeCategorie)"
+                @delete="confirmDelete"
+              />
+            </div>
+          </div>
+          <div v-else>
+            <p class="text-subtitle-2 text-grey">Pas de dépense</p>
           </div>
         </v-card-text>
       </v-card>
@@ -80,8 +81,7 @@
     </v-dialog>
 
     <!-- Modale de gestion globale -->
-    <CategorieShow v-model="showManager" style="max-width: 30%;" />
-
+    <CategorieShow v-model="showManager" style="max-width: 30%" />
   </div>
 </template>
 

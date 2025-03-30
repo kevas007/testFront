@@ -1,19 +1,19 @@
 <template>
-  <v-card class="mb-3 pa-4" elevation="0" color="grey-lighten-4">
+  <v-card class="mb-3" elevation="0" >
     <div class="d-flex justify-space-between align-center">
       <!-- Infos de la dépense -->
       <div>
-        <p class="text-subtitle-1 font-weight-medium mb-1">
+        <p class="text-subtitle-1 font-weight-bold mb-1">
           {{ depense.titre }}
         </p>
 
         <div class="d-flex align-center mb-1">
-          <strong class="text-h6 me-2">
+          <strong class="text-h6 font-weight-bold me-2">
             {{ formatCurrency(depense.montant) }}
           </strong>
 
           <v-chip :color="color" text-color="black" size="small" variant="flat">
-            {{ depense.categorie?.name || 'Sans catégorie' }}
+            {{ categorieName || 'Sans catégorie' }}
           </v-chip>
         </div>
 
@@ -60,6 +60,7 @@ import type { Depense } from '@/types/typeFile'
 const props = defineProps<{
   depense: Depense
   color: string
+  categorieName: string
 }>()
 
 const emit = defineEmits(['delete', 'updated'])
@@ -82,6 +83,7 @@ function handleDepenseUpdated() {
   showEditModal.value = false
 }
 </script>
+
 <style scoped>
 @media screen and (max-width: 600px) {
   .v-card {

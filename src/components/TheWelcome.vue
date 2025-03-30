@@ -8,6 +8,4 @@
 import CategorieAll from './CategorieAll.vue'
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
